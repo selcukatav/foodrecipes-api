@@ -17,7 +17,7 @@ func ConnectMssql() (*Database, error) {
 	db := &Database{}
 
 	// Conn string
-	connString := "server=DESKTOP-HVQPCRP;integrated security=true;database=your_database"
+	connString := "server=DESKTOP-HVQPCRP;integrated security=true;database=FoodRecipes"
 	// SQL connection
 	db.DB, err = sql.Open("sqlserver", connString)
 	if err != nil {
