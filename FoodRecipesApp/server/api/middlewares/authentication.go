@@ -13,6 +13,7 @@ type Database struct {
 func NewDatabase(db *sql.DB) *Database {
 	return &Database{DB: db}
 }
+
 func (d *Database) Authentication(username, password string) error {
 
 	query := "SELECT count(*) FROM users WHERE username=@p1 AND password=@p2"

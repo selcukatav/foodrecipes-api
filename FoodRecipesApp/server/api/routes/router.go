@@ -11,6 +11,7 @@ func New() *echo.Echo {
 
 	e.GET("/", MainPage)
 	e.POST("/login", Login)
+	e.POST("/register", Register)
 	return e
 }
 func MainPage(c echo.Context) error {
