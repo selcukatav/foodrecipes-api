@@ -10,7 +10,7 @@ func New() *echo.Echo {
 	e := echo.New()
 
 	e.GET("/", MainPage)
-	
+	e.POST("/login", Login)
 	return e
 }
 func MainPage(c echo.Context) error {

@@ -51,6 +51,10 @@ func (d *Database) Select() {
 		log.Fatal(err)
 	}
 }
+
+
+
+
 func Delete() {
 
 }
