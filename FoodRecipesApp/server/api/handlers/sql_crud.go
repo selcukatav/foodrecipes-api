@@ -152,9 +152,50 @@ func (d *Database) FilterRecipesByCategory(categoryId int) ([]domains.Recipe, er
 		recipes = append(recipes, recipe)
 	}
 
-	// Satırları döngü içinde işlerken oluşabilecek hataları kontrol edelim
 	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("Error while getting recipes by category", err)
+	}
+
+	return recipes, nil
+}
+
+// Gets recipes by time
+func (d *Database) FilterByTime(timeType string, time1, time2 int) ([]domains.RecipeByTime, error) {
+	var query string
+
+	switch timeType {
+	case "prep":
+		query = `SELECT recipe_id, title, prep_time FROM recipes WHERE prep_time BETWEEN @p1 AND @p2 ORDER BY prep_time asc`
+	case "cook":
+		query = `SELECT recipe_id, title, cook_time FROM recipes WHERE cook_time BETWEEN @p1 AND @p2 ORDER BY cook_time asc`
+	default:
+		return nil, fmt.Errorf("Invalid time type: %s", timeType)
+	}
+
+	rows, err := d.DB.Query(query, time1, time2)
+	if err != nil {
+		return nil, fmt.Errorf("Error while getting recipes: %v", err)
+	}
+	defer rows.Close()
+
+	var recipes []domains.RecipeByTime
+
+	for rows.Next() {
+		var recipe domains.RecipeByTime
+		if timeType == "prep" {
+			if err := rows.Scan(&recipe.RecipeId, &recipe.Title, &recipe.PrepTime); err != nil {
+				return nil, fmt.Errorf("Error while scanning recipes: %v", err)
+			}
+		} else {
+			if err := rows.Scan(&recipe.RecipeId, &recipe.Title, &recipe.CookTime); err != nil {
+				return nil, fmt.Errorf("Error while scanning recipes: %v", err)
+			}
+		}
+		recipes = append(recipes, recipe)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("Error during rows iteration: %v", err)
 	}
 
 	return recipes, nil

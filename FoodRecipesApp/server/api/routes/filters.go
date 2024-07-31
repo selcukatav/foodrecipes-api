@@ -45,3 +45,23 @@ func FilterByCategory(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, recipes)
 }
+
+func FilterByTime(c echo.Context) error {
+	var time domains.RecipeByTime
+	if err:= c.Bind(&time);err!=nil{
+		return err
+	}
+	timeType:=time.TimeType
+	time1:=time.Time1
+	time2:=time.Time2
+
+	db := c.Get("db").(*sql.DB)
+	handlerDB := handlers.NewDatabase(db)
+	recipes, err := handlerDB.FilterByTime(timeType,time1,time2)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, recipes)
+
+}

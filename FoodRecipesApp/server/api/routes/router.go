@@ -16,6 +16,7 @@ func New() *echo.Echo {
 	e.GET("/auth/callback", HandleGithubCallback)
 	e.GET("/recipesbyingredients", FilterIngredients)
 	e.GET("/recipesbycategory",FilterByCategory)
+	e.GET("/recipesbytime",FilterByTime)
 	
 	return e
 }
