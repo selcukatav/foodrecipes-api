@@ -94,23 +94,23 @@ func (d *Database) CreateUserWithoutPassword(email, username string) error {
 }
 
 // FilterRecipes function to filter recipes based on ingredient criteria
-// TODO: Should grouped by recipe_ids
-func (d *Database) FilterRecipes(criteria []int) ([]domains.RecipeIngredients, error) {
-	query := `SELECT recipe_id, ingredient_id, quantity FROM recipe_ingredients WHERE `
+func (d *Database) FilterRecipes(criteria []int) ([]domains.Recipe, error) {
+	if len(criteria) == 0 {
+		return nil, fmt.Errorf("criteria is empty")
+	}
 
-	whereClauses := []string{}
-	for _, criterion := range criteria {
-		whereClauses = append(whereClauses, fmt.Sprintf("ingredient_id = %d", criterion))
-	}
-	query += strings.Join(whereClauses, " OR ")
-	query += " ORDER BY "
+	query := `SELECT r.recipe_id, r.title, COUNT(ri.ingredient_id) AS match_count 
+			  FROM recipes r 
+			  JOIN recipe_ingredients ri ON r.recipe_id = ri.recipe_id 
+			  WHERE ri.ingredient_id IN (%s) 
+			  GROUP BY r.recipe_id, r.title 
+			  ORDER BY match_count DESC`
+
+	criteriaStr := make([]string, len(criteria))
 	for i, criterion := range criteria {
-		if i != 0 {
-			query += " + "
-		}
-		query += fmt.Sprintf("CHARINDEX('%d', CAST(ingredient_id AS VARCHAR))", criterion)
+		criteriaStr[i] = fmt.Sprintf("%d", criterion)
 	}
-	query += " DESC"
+	query = fmt.Sprintf(query, strings.Join(criteriaStr, ","))
 
 	rows, err := d.DB.Query(query)
 	if err != nil {
@@ -118,10 +118,10 @@ func (d *Database) FilterRecipes(criteria []int) ([]domains.RecipeIngredients, e
 	}
 	defer rows.Close()
 
-	var recipes []domains.RecipeIngredients
+	var recipes []domains.Recipe
 	for rows.Next() {
-		var recipe domains.RecipeIngredients
-		if err := rows.Scan(&recipe.RecipeId, &recipe.IngredientId, &recipe.Quantity); err != nil {
+		var recipe domains.Recipe
+		if err := rows.Scan(&recipe.RecipeId, &recipe.Title, &recipe.MatchCount); err != nil {
 			return nil, fmt.Errorf("error while scanning row: %w", err)
 		}
 		recipes = append(recipes, recipe)
