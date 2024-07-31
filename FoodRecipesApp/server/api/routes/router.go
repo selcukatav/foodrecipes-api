@@ -14,7 +14,8 @@ func New() *echo.Echo {
 	e.POST("/register", Register)
 	e.GET("/githubLogin", HandleGithubLogin)
 	e.GET("/auth/callback", HandleGithubCallback)
-	e.GET("/recipes", FilterIngredients)
+	e.GET("/recipesbyingredients", FilterIngredients)
+	e.GET("/recipesbycategory",FilterByCategory)
 	
 	return e
 }

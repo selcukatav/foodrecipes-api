@@ -9,6 +9,7 @@ type RecipeIngredients struct {
 type Recipe struct {
 	RecipeId int `json:"recipeId"`
 	Title string `json:"title"`
-
+	CategoryId int `json:"categoryId"`
 	MatchCount int `json:"matchCount"`
 }
+
